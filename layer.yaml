@@ -1,0 +1,9 @@
+includes:
+  - 'layer:basic'
+  - 'layer:docker'
+  - 'interface:docker-image-host'
+repo: git@github.com:IBCNServices/layer-docker-host.git
+exclude:
+  - tests/10-deploy.py
+  - tests/tests.yaml
+
