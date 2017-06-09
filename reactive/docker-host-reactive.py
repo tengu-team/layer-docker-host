@@ -28,8 +28,9 @@ def run_images(relation):
     container_requests = relation.container_requests
     running_containers = {}
     log(container_requests)
-    for (uuid, container_request) in container_requests.items():
-        running_containers[uuid] = ensure_running(container_request)
+    for container_request in container_requests:
+        service, unit = container_request['unit'].split('/', 1)
+        running_containers[container_request['unit']] = ensure_running(service, unit, container_request)
     relation.send_running_containers(running_containers)
 
 
@@ -37,17 +38,16 @@ def run_images(relation):
 def remove_images(relation):
     container_requests = relation.container_requests
     log(container_requests)
-    for (uuid, container_request) in container_requests.items():
+    for container_request in container_requests:
         service, unit = container_request['unit'].split('/', 1)
         remove(service, unit)
     remove_state('docker-image-host.broken')
 
 
-def ensure_running(container_request):
+def ensure_running(service, unit, container_request):
     '''When the provided image is not running, set it up and run it. '''
     client = docker.from_env(version="auto")
     image = container_request['image']
-    service, unit = container_request['unit'].split('/', 1)
     kwargs = {
         'labels': {},
         'detach': True,
